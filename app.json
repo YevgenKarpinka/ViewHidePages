@@ -1,0 +1,26 @@
+{
+  "id": "57bf982d-ab1b-4ce1-be20-a1070152de0c",
+  "name": "View Hide Pages",
+  "publisher": "TComTech",
+  "version": "18.0.0.0",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "18.0.0.0",
+  "idRanges": [
+    {
+      "from": 51000,
+      "to": 51050
+    }
+  ],
+  "contextSensitiveHelpUrl": "https://ViewHidePages.com/help/",
+  "showMyCode": true,
+  "runtime": "7.0"
+}
