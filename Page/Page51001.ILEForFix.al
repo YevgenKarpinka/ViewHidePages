@@ -72,14 +72,39 @@ page 51001 "ILE For Fix"
                 field("Item Ledger Entry Sum Qty"; Sum_Qty_By_Lot)
                 {
                     ApplicationArea = All;
+
+                    trigger OnDrillDown()
+                    var
+                        locILE: Record "Item Ledger Entry";
+                    begin
+                        SetILEFilter(locILE);
+                        Page.Run(Page::"Item Ledger Entries", locILE);
+                    end;
                 }
                 field("Item Ledger Entry Sum Remaining Qty"; Sum_Rem_Qty_By_Lot)
                 {
                     ApplicationArea = All;
+
+                    trigger OnDrillDown()
+                    var
+                        locILE: Record "Item Ledger Entry";
+                    begin
+                        SetILEFilter(locILE);
+                        SetILERemFilter(locILE);
+                        Page.Run(Page::"Item Ledger Entries", locILE);
+                    end;
                 }
                 field("Whse. Entry Sum Qty"; WE_Sum_Qty)
                 {
                     ApplicationArea = All;
+
+                    trigger OnDrillDown()
+                    var
+                        locWE: Record "Warehouse Entry";
+                    begin
+                        SetWEFilter(locWE);
+                        Page.Run(Page::"Warehouse Entries", locWE);
+                    end;
                 }
                 field("Delta Item Ledger Entry Sum Qty"; Delta_Sum_Qty)
                 {
@@ -157,15 +182,24 @@ page 51001 "ILE For Fix"
     local procedure ShowRecord(): Boolean
     begin
         CalcSumsQty();
-        if (Rec.Quantity <> Rec."Remaining Quantity") then
-            exit((Delta_Sum_Qty <> 0) or (Delta_ILE_WE <> 0));
-        exit(false);
+        exit((Rec.Quantity <> Rec."Remaining Quantity") and (Delta_ILE_WE <> 0));
     end;
 
     local procedure CalcSumsQty()
     var
-        locILE: Record "Item Ledger Entry";
         locWE: Record "Warehouse Entry";
+    begin
+        CalcILESums();
+        CalcWESums();
+
+        Delta_ILE_WE := Sum_Rem_Qty_By_Lot - WE_Sum_Qty;
+        ILE_StyleTxt := SetStyle(Delta_Sum_Qty);
+        ILE_WE_StyleTxt := SetStyle(Delta_ILE_WE);
+    end;
+
+    local procedure CalcILESums()
+    var
+        locILE: Record "Item Ledger Entry";
     begin
         locILE.SetCurrentKey("Item No.", "Lot No.", "Location Code");
         locILE.SetRange("Item No.", Rec."Item No.");
@@ -176,7 +210,27 @@ page 51001 "ILE For Fix"
         Sum_Qty_By_Lot := locILE.Quantity;
         Sum_Rem_Qty_By_Lot := locILE."Remaining Quantity";
         Delta_Sum_Qty := Sum_Qty_By_Lot - Sum_Rem_Qty_By_Lot;
+    end;
 
+    local procedure SetILEFilter(var locILE: Record "Item Ledger Entry")
+    begin
+        locILE.SetCurrentKey("Item No.", "Lot No.", "Location Code");
+        locILE.SetRange("Item No.", Rec."Item No.");
+        locILE.SetRange("Lot No.", Rec."Lot No.");
+        locILE.SetRange("Variant Code", Rec."Variant Code");
+        locILE.SetRange("Location Code", Rec."Location Code");
+    end;
+
+    local procedure SetILERemFilter(var locILE: Record "Item Ledger Entry")
+    begin
+        locILE.SetCurrentKey("Item No.", "Lot No.", "Location Code", Open);
+        locILE.SetRange(Open, true);
+    end;
+
+    local procedure CalcWESums()
+    var
+        locWE: Record "Warehouse Entry";
+    begin
         locWE.SetCurrentKey("Item No.", "Lot No.", "Location Code");
         locWE.SetRange("Item No.", Rec."Item No.");
         locWE.SetRange("Lot No.", Rec."Lot No.");
@@ -184,11 +238,15 @@ page 51001 "ILE For Fix"
         locWE.SetRange("Location Code", Rec."Location Code");
         locWE.CalcSums("Qty. (Base)");
         WE_Sum_Qty := locWE."Qty. (Base)";
+    end;
 
-        Delta_ILE_WE := Sum_Rem_Qty_By_Lot - WE_Sum_Qty;
-
-        ILE_StyleTxt := SetStyle(Delta_Sum_Qty);
-        ILE_WE_StyleTxt := SetStyle(Delta_ILE_WE);
+    local procedure SetWEFilter(var locWE: Record "Warehouse Entry")
+    begin
+        locWE.SetCurrentKey("Item No.", "Lot No.", "Location Code");
+        locWE.SetRange("Item No.", Rec."Item No.");
+        locWE.SetRange("Lot No.", Rec."Lot No.");
+        locWE.SetRange("Variant Code", Rec."Variant Code");
+        locWE.SetRange("Location Code", Rec."Location Code");
     end;
 
     procedure SetStyle(xDecimal: Decimal) Style: Text
