@@ -157,7 +157,9 @@ page 51001 "ILE For Fix"
     local procedure ShowRecord(): Boolean
     begin
         CalcSumsQty();
-        exit((Delta_Sum_Qty <> 0) or (Delta_ILE_WE <> 0));
+        if (Rec.Quantity <> Rec."Remaining Quantity") then
+            exit((Delta_Sum_Qty <> 0) or (Delta_ILE_WE <> 0));
+        exit(false);
     end;
 
     local procedure CalcSumsQty()
