@@ -15,7 +15,7 @@ codeunit 51000 "Update Entry Mgt."
         LotNo: Code[50];
     begin
         BinContent.SetCurrentKey("Lot No.");
-        BinContent.SetRange("Lot No.", '');
+        BinContent.SetFilter("Lot No.", '%1', '');
         if BinContent.FindSet(true, false) then
             repeat
                 BinContent.CalcFields("Quantity (Base)");
@@ -36,7 +36,7 @@ codeunit 51000 "Update Entry Mgt."
     var
         WhseEntry: Record "Warehouse Entry";
     begin
-        WhseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
+        WhseEntry.SetCurrentKey("Entry No.", "Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
         WhseEntry.SetRange("Location Code", Location);
         WhseEntry.SetRange("Bin Code", BinCode);
         WhseEntry.SetRange("Item No.", Item);
@@ -45,5 +45,24 @@ codeunit 51000 "Update Entry Mgt."
         if WhseEntry.FindLast() then
             exit(WhseEntry."Lot No.");
         exit('');
+    end;
+
+    procedure TelClearLotNoIfBinContenpEmpty()
+    var
+        BinContent: Record "Bin Content";
+        BinConMod: Record "Bin Content";
+    begin
+        BinContent.SetCurrentKey("Lot No.");
+        BinContent.SetFilter("Lot No.", '<>%1', '');
+        if BinContent.FindSet() then
+            repeat
+                BinContent.CalcFields("Quantity (Base)");
+                if BinContent."Quantity (Base)" = 0 then
+                    if BinConMod.Get(BinContent."Location Code", BinContent."Bin Code", BinContent."Item No.",
+                            BinContent."Variant Code", BinContent."Unit of Measure Code") then begin
+                        BinConMod.Validate("Lot No.", '');
+                        BinConMod.Modify();
+                    end;
+            until BinContent.Next() = 0;
     end;
 }

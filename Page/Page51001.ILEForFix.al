@@ -152,6 +152,7 @@ page 51001 "ILE For Fix"
                     trigger OnAction()
                     begin
                         UpdateEntryMgt.TelUpdateBinContent();
+                        UpdateEntryMgt.TelClearLotNoIfBinContenpEmpty();
                         Message(TelLotNoInBinContentUpdated);
                     end;
                 }
