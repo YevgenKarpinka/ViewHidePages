@@ -2,7 +2,7 @@
   "id": "57bf982d-ab1b-4ce1-be20-a1070152de0c",
   "name": "Fusion View Hide Pages",
   "publisher": "TComTech",
-  "version": "18.0.0.2",
+  "version": "18.0.0.3",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -10,7 +10,14 @@
   "help": "",
   "url": "",
   "logo": "",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "id": "6317e880-5065-4f48-98ff-ff40f914c170",
+      "name": "Fusion Base Extention",
+      "version": "18.0.0.0",
+      "publisher": "TComTech"
+    }
+  ],
   "screenshots": [],
   "platform": "1.0.0.0",
   "application": "18.0.0.0",
